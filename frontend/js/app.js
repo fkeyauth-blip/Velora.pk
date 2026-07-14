@@ -1,0 +1,12 @@
+const AppModule = { showToast(msg) { const t = document.getElementById("toast"); t.textContent = msg; t.classList.add("show"); setTimeout(() => t.classList.remove("show"), 3000); } };
+document.getElementById("navToggle").addEventListener("click", () => document.getElementById("mainNav").classList.toggle("open"));
+document.getElementById("cartToggle").addEventListener("click", () => document.getElementById("cartDrawer").hidden = false);
+document.getElementById("sizeGuideCloseBtn").addEventListener("click", () => document.getElementById("sizeGuideOverlay").hidden = true);
+document.getElementById("modalCloseBtn").addEventListener("click", () => document.getElementById("productModalOverlay").hidden = true);
+document.getElementById("authCloseBtn").addEventListener("click", () => document.getElementById("authOverlay").hidden = true);
+document.getElementById("checkoutCloseBtn").addEventListener("click", () => document.getElementById("checkoutOverlay").hidden = true);
+document.querySelectorAll('[data-page]').forEach(link => link.addEventListener("click", (e) => { e.preventDefault(); const p = link.dataset.page; document.querySelectorAll("main > section").forEach(s => s.hidden = true); const s = document.getElementById(`${p}-page`) || document.getElementById(`${p}-section`); if (s) s.hidden = false; }));
+document.querySelectorAll(".faq-q").forEach(btn => btn.addEventListener("click", () => { const a = btn.nextElementSibling; a.hidden = !a.hidden; }));
+document.getElementById("newsletterForm").addEventListener("submit", async (e) => { e.preventDefault(); const email = document.getElementById("newsletterEmail").value; try { const res = await fetch("/api/newsletter", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email }) }); if (res.ok) { AppModule.showToast("Thanks!"); document.getElementById("newsletterForm").reset(); } } catch (err) { AppModule.showToast("Failed"); } });
+document.getElementById("priceSlider").addEventListener("input", () => ProductsModule.render());
+ProductsModule.init(); CartModule.init(); AuthModule.init();

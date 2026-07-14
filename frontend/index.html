@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VELORA.PK - Premium Fashion Pakistan</title>
+  <meta name="description" content="VELORA - Premium luxury fashion brand in Pakistan.">
+  <meta property="og:title" content="VELORA.PK - Premium Fashion">
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@300;400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="header-row">
+    <button class="nav-toggle" id="navToggle">☰</button>
+    <nav class="main-nav" id="mainNav">
+      <a href="#" data-category="All" class="nav-link active">Shop All</a>
+      <a href="#" data-category="Clothes" class="nav-link">Clothes</a>
+      <a href="#" data-page="tracking" class="nav-link">Track Order</a>
+      <a href="#" data-page="bulk" class="nav-link">Bulk Orders</a>
+      <a href="#" data-page="faq" class="nav-link">FAQ</a>
+    </nav>
+    
+    <div class="brand-mark">VELORA</div>
+    
+    <div class="header-actions">
+      <input type="search" id="searchInput" class="search-input" placeholder="Search...">
+      <button class="account-btn" id="accountToggle">👤 <span id="accountLabel">Sign In</span></button>
+      <button class="cart-btn" id="cartToggle">🛍 <span id="cartCount">0</span></button>
+    </div>
+  </div>
+</header>
+
+<div class="notice-banner" id="rejectedBanner" hidden>
+  <span id="rejectedBannerText"></span>
+  <button class="banner-close" id="rejectedBannerDismiss">×</button>
+</div>
+
+<main id="main">
+
+  <section class="hero">
+    <h1>VELORA</h1>
+    <p>Premium Fashion Designed for Pakistan</p>
+    <button class="btn-primary" onclick="document.getElementById('catalog').scrollIntoView({behavior:'smooth'})">Shop Collection</button>
+  </section>
+
+  <section class="trust-section">
+    <div class="badge">✓ 100% Authentic</div>
+    <div class="badge">📦 Cash on Delivery</div>
+    <div class="badge">↩ Easy Returns</div>
+  </section>
+
+  <section class="catalog" id="catalog">
+    <h2>The Collection</h2>
+    
+    <div class="controls">
+      <select id="sortSelect">
+        <option value="default">Featured</option>
+        <option value="price-asc">Price: Low to High</option>
+        <option value="price-desc">Price: High to Low</option>
+        <option value="newest">Newest</option>
+      </select>
+      <input type="range" id="priceSlider" min="0" max="100000" step="1000" value="100000">
+      <span id="priceDisplay">Rs. 100,000</span>
+      <button id="clearFiltersBtn">Clear</button>
+    </div>
+
+    <div id="resultsCount">0 products</div>
+    <div id="productGrid" class="grid"></div>
+    <div id="emptyState" hidden><p>No products found</p></div>
+  </section>
+
+  <section class="newsletter">
+    <h2>Stay Updated</h2>
+    <p>Get exclusive updates on new collections</p>
+    <form id="newsletterForm">
+      <input type="email" id="newsletterEmail" placeholder="Your email" required>
+      <button type="submit" class="btn-gold">Subscribe</button>
+    </form>
+  </section>
+
+  <section id="faq-section" hidden>
+    <h2>Frequently Asked Questions</h2>
+    <div class="faq-list">
+      <div class="faq-item">
+        <button class="faq-q">How long does delivery take?</button>
+        <div class="faq-a" hidden>We deliver within 3-5 business days across Pakistan.</div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q">What's your return policy?</button>
+        <div class="faq-a" hidden>30-day returns on unused items in original condition.</div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q">Do you offer wholesale?</button>
+        <div class="faq-a" hidden>Yes! Use "Bulk Orders" section for inquiries.</div>
+      </div>
+    </div>
+  </section>
+
+  <section id="tracking-page" hidden>
+    <h2>Track Your Order</h2>
+    <input type="text" id="trackingOrderId" placeholder="Order ID">
+    <button id="trackingSearchBtn" class="btn-primary">Search</button>
+    <div id="trackingResult"></div>
+  </section>
+
+  <section id="bulk-inquiry-page" hidden>
+    <h2>Wholesale Inquiry</h2>
+    <form id="bulkInquiryForm">
+      <input type="text" id="bulk-name" placeholder="Business Name" required>
+      <input type="tel" id="bulk-phone" placeholder="Phone" required>
+      <input type="email" id="bulk-email" placeholder="Email" required>
+      <textarea id="bulk-product" placeholder="Products interested in?" required></textarea>
+      <input type="number" id="bulk-qty" placeholder="Quantity" min="50" required>
+      <button type="submit" class="btn-primary">Submit</button>
+    </form>
+  </section>
+
+</main>
+
+<!-- SIZE GUIDE MODAL -->
+<div class="modal-overlay" id="sizeGuideOverlay" hidden>
+  <div class="modal">
+    <button class="modal-close" id="sizeGuideCloseBtn">×</button>
+    <h2>Size Guide</h2>
+    <table>
+      <tr><th>Size</th><th>XS</th><th>S</th><th>M</th><th>L</th><th>XL</th></tr>
+      <tr><td>Chest (cm)</td><td>80</td><td>88</td><td>96</td><td>104</td><td>112</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- PRODUCT MODAL -->
+<div class="modal-overlay" id="productModalOverlay" hidden>
+  <div class="modal product-modal">
+    <button class="modal-close" id="modalCloseBtn">×</button>
+    <div id="modalBody"></div>
+  </div>
+</div>
+
+<!-- AUTH MODAL -->
+<div class="modal-overlay" id="authOverlay" hidden>
+  <div class="modal">
+    <button class="modal-close" id="authCloseBtn">×</button>
+    <div id="authBody"></div>
+  </div>
+</div>
+
+<!-- CART DRAWER -->
+<div class="cart-drawer" id="cartDrawer" hidden>
+  <div class="cart-content">
+    <h3>Shopping Bag</h3>
+    <div id="cartItems"></div>
+    <div class="cart-total">Total: <span id="cartTotal">Rs. 0</span></div>
+    <button class="btn-primary" id="checkoutBtn">Checkout</button>
+  </div>
+</div>
+
+<!-- CHECKOUT MODAL -->
+<div class="modal-overlay" id="checkoutOverlay" hidden>
+  <div class="modal">
+    <button class="modal-close" id="checkoutCloseBtn">×</button>
+    <div id="checkoutBody"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<footer class="footer">
+  <div class="footer-content">
+    <div>
+      <h4>SHOP</h4>
+      <a href="#">Clothes</a>
+      <a href="#" data-page="bulk">Wholesale</a>
+    </div>
+    <div>
+      <h4>SUPPORT</h4>
+      <a href="#" data-page="faq">FAQ</a>
+      <a href="#" data-page="tracking">Track</a>
+    </div>
+    <div>
+      <h4>CONTACT</h4>
+      <p>📧 hello@velora.pk</p>
+      <p>📱 WhatsApp: <a href="https://wa.me/923015269322">03015269322</a></p>
+    </div>
+  </div>
+  <p class="footer-credit">© 2024 VELORA.PK</p>
+</footer>
+
+<script src="/js/api.js"></script>
+<script src="/js/products.js"></script>
+<script src="/js/cart.js"></script>
+<script src="/js/checkout.js"></script>
+<script src="/js/auth.js"></script>
+<script src="/js/app.js"></script>
+
+</body>
+</html>

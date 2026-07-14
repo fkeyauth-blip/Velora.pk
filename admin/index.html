@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VELORA - Admin Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: "Inter", sans-serif; background: #F9F9F7; }
+    .admin-header { background: white; padding: 20px; border-bottom: 1px solid #E5E7EB; }
+    .admin-nav { display: flex; gap: 8px; margin-top: 12px; }
+    .admin-btn { background: #F3F4F6; border: none; padding: 10px 16px; border-radius: 4px; cursor: pointer; font-weight: 600; }
+    .admin-btn.active { background: #111827; color: white; }
+    .admin-panel { max-width: 1200px; margin: 20px auto; background: white; padding: 24px; border-radius: 8px; }
+    .admin-table { width: 100%; border-collapse: collapse; }
+    .admin-table th, .admin-table td { padding: 12px; text-align: left; border-bottom: 1px solid #E5E7EB; }
+    .form-group { margin-bottom: 16px; }
+    .form-group label { display: block; font-weight: 600; margin-bottom: 6px; }
+    .form-group input, .form-group select, .form-group textarea, .form-group label input[type="checkbox"] { padding: 10px; border: 1px solid #E5E7EB; border-radius: 4px; font-size: 13px; width: 100%; }
+    .checkbox-group { display: flex; align-items: center; gap: 8px; }
+    .checkbox-group input { width: auto; }
+    .btn { background: #111827; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-weight: 600; }
+    .btn-danger { background: #B91C1C; }
+    .stat-card { background: #F9F9F7; padding: 16px; border-radius: 8px; margin: 8px 0; }
+  </style>
+</head>
+<body>
+
+<div class="admin-header">
+  <h1>VELORA Admin Dashboard</h1>
+  <div class="admin-nav">
+    <button class="admin-btn active" onclick="showPanel('stats')">📊 Dashboard</button>
+    <button class="admin-btn" onclick="showPanel('products')">📦 Products</button>
+    <button class="admin-btn" onclick="showPanel('add')">➕ Add Product</button>
+  </div>
+</div>
+
+<div class="admin-panel" id="stats-panel">
+  <h2>Dashboard</h2>
+  <div id="statsContent">Loading...</div>
+</div>
+
+<div class="admin-panel" id="products-panel" hidden>
+  <h2>Products</h2>
+  <table class="admin-table">
+    <thead>
+      <tr><th>Name</th><th>Price</th><th>Stock</th><th>Sizes</th><th>Size Guide?</th><th>Action</th></tr>
+    </thead>
+    <tbody id="productsList"><tr><td colspan="6">Loading...</td></tr></tbody>
+  </table>
+</div>
+
+<div class="admin-panel" id="add-panel" hidden>
+  <h2>Add Product</h2>
+  <form id="addProductForm" style="max-width: 600px;">
+    <div class="form-group">
+      <label>Product Name *</label>
+      <input type="text" id="addName" required>
+    </div>
+    
+    <div class="form-group">
+      <label>Category *</label>
+      <select id="addCategory" required>
+        <option>Clothes</option>
+      </select>
+    </div>
+    
+    <div class="form-group">
+      <label>Price (Rs) *</label>
+      <input type="number" id="addPrice" min="0" required>
+    </div>
+    
+    <div class="form-group">
+      <label>Sale Price (Rs)</label>
+      <input type="number" id="addSalePrice" min="0">
+    </div>
+    
+    <div class="form-group">
+      <label>Sizes (comma-separated, e.g., S,M,L,XL)</label>
+      <input type="text" id="addSizes" placeholder="Leave empty for items without sizes">
+    </div>
+    
+    <div class="form-group">
+      <label>Colors (comma-separated)</label>
+      <input type="text" id="addColors">
+    </div>
+    
+    <div class="form-group">
+      <label>Stock</label>
+      <input type="number" id="addStock" value="0">
+    </div>
+    
+    <div class="form-group">
+      <label>Description</label>
+      <textarea id="addDescription" style="height: 100px;"></textarea>
+    </div>
+
+    <div class="form-group">
+      <div class="checkbox-group">
+        <input type="checkbox" id="addShowSizeGuide" checked>
+        <label for="addShowSizeGuide" style="margin-bottom: 0; width: auto;">Show Size Guide? (only if sizes added)</label>
+      </div>
+    </div>
+    
+    <button type="submit" class="btn" style="width: 100%;">Add Product</button>
+  </form>
+</div>
+
+<script>
+const ADMIN_KEY = "maison-admin-2026";
+
+function showPanel(name) {
+  document.querySelectorAll(".admin-panel").forEach(p => p.hidden = true);
+  document.getElementById(name + "-panel").hidden = false;
+  if (name === "stats") loadStats();
+  if (name === "products") loadProducts();
+}
+
+async function loadStats() {
+  try {
+    const res = await fetch("/api/admin/stats", { headers: { "x-admin-key": ADMIN_KEY } });
+    const data = await res.json();
+    document.getElementById("statsContent").innerHTML = `
+      <div class="stat-card"><strong>Total Orders:</strong> ${data.totalOrders}</div>
+      <div class="stat-card"><strong>Revenue:</strong> Rs. ${(data.totalRevenue || 0).toLocaleString()}</div>
+      <div class="stat-card"><strong>Products:</strong> ${data.totalProducts}</div>
+      <div class="stat-card"><strong>Low Stock:</strong> ${data.lowStock} items</div>
+    `;
+  } catch (err) {
+    document.getElementById("statsContent").innerHTML = `<p style="color:#B91C1C;">${err.message}</p>`;
+  }
+}
+
+async function loadProducts() {
+  try {
+    const res = await fetch("/api/admin/products", { headers: { "x-admin-key": ADMIN_KEY } });
+    const data = await res.json();
+    const html = data.products.map(p => {
+      const sizes = JSON.parse(p.sizes || "[]");
+      return `
+        <tr>
+          <td>${p.name}</td>
+          <td>Rs. ${p.price}</td>
+          <td>${p.stock}</td>
+          <td>${sizes.length > 0 ? sizes.join(", ") : "No sizes"}</td>
+          <td>${p.showsizeguide && sizes.length > 0 ? "✓ Yes" : "✗ No"}</td>
+          <td><button class="btn btn-danger" onclick="deleteProduct('${p.id}')">Delete</button></td>
+        </tr>
+      `;
+    }).join("");
+    document.getElementById("productsList").innerHTML = html;
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+async function deleteProduct(id) {
+  if (!confirm("Delete this product?")) return;
+  try {
+    await fetch(`/api/admin/products/${id}`, { method: "DELETE", headers: { "x-admin-key": ADMIN_KEY } });
+    alert("Deleted!");
+    loadProducts();
+  } catch (err) {
+    alert("Error: " + err.message);
+  }
+}
+
+document.getElementById("addProductForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  alert("Image upload requires file input. This is a basic admin for testing.");
+  // In production, add file input for images
+});
+
+loadStats();
+</script>
+
+</body>
+</html>
