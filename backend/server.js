@@ -1,4 +1,4 @@
-// backend/server.js - PostgreSQL Version
+// backend/server.js - Complete Correct Version
 const express = require("express");
 const cors = require("cors");
 const path = require("path");
@@ -58,21 +58,21 @@ app.use((err, req, res, next) => {
 });
 
 // Initialize and start
-sync function start() {
+async function start() {
   try {
-    console.log("Initializing database...");
+    console.log("🔄 Initializing database...");
     await initDB();
     
-    console.log("Seeding products...");
+    console.log("📦 Seeding products...");
     await seedProducts();
     
     app.listen(PORT, () => {
-      console.log(`\n✅ VELORA API running on port ${PORT}`);
-      console.log(`📖 Database: PostgreSQL (${process.env.DATABASE_URL.split("@")[1]?.split("/")[0]})`);
-      console.log(`🌐 http://localhost:${PORT}\n`);
+      console.log(`\n✅ VELORA API running on http://localhost:${PORT}`);
+      console.log(`📊 Database: PostgreSQL connected`);
+      console.log(`🔑 Admin: /admin (Key: maison-admin-2026)\n`);
     });
   } catch (err) {
-    console.error("❌ Startup error:", err.message);
+    console.error("❌ Startup error:", err);
     process.exit(1);
   }
 }
