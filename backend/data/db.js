@@ -1,24 +1,37 @@
-// backend/data/db.js - PostgreSQL Database Module
+// backend/data/db.js - BETTER ERROR HANDLING
 const { Pool } = require("pg");
 
-// MUST have DATABASE_URL in environment
 if (!process.env.DATABASE_URL) {
-  console.error("ERROR: DATABASE_URL environment variable not set!");
+  console.error("❌ ERROR: DATABASE_URL not set!");
   process.exit(1);
 }
 
+console.log("[DB] Connecting to:", process.env.DATABASE_URL.split("@")[1] || "database");
+
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
-  ssl: process.env.NODE_ENV === "production" ? { rejectUnauthorized: false } : false
+  ssl: process.env.NODE_ENV === "production" ? { rejectUnauthorized: false } : false,
+  connectionTimeoutMillis: 5000,
+  idleTimeoutMillis: 30000,
+  max: 10
 });
 
 pool.on("error", (err) => {
-  console.error("Unexpected error on idle client", err);
+  console.error("[DB POOL ERROR]", err);
+});
+
+pool.on("connect", () => {
+  console.log("[DB] Connected to PostgreSQL");
 });
 
 async function initDB() {
   try {
-    // Products table with showSizeGuide column
+    // Test connection first
+    const client = await pool.connect();
+    console.log("[DB] Connection test successful");
+    client.release();
+
+    // Products table
     await pool.query(`
       CREATE TABLE IF NOT EXISTS products (
         id TEXT PRIMARY KEY,
@@ -84,10 +97,12 @@ async function initDB() {
       )
     `);
 
-    console.log("✓ PostgreSQL database initialized");
+    console.log("[DB] All tables created/verified");
   } catch (err) {
-    if (!err.message.includes("already exists")) {
-      console.error("DB init error:", err);
+    if (err.message && err.message.includes("already exists")) {
+      console.log("[DB] Tables already exist");
+    } else {
+      throw err;
     }
   }
 }
@@ -97,7 +112,7 @@ async function dbAll(sql, params = []) {
     const res = await pool.query(sql, params);
     return res.rows;
   } catch (err) {
-    console.error("Query error:", err);
+    console.error("[DB QUERY ERROR]", sql, err.message);
     throw err;
   }
 }
@@ -107,7 +122,7 @@ async function dbGet(sql, params = []) {
     const res = await pool.query(sql, params);
     return res.rows[0];
   } catch (err) {
-    console.error("Query error:", err);
+    console.error("[DB QUERY ERROR]", sql, err.message);
     throw err;
   }
 }
@@ -117,7 +132,7 @@ async function dbRun(sql, params = []) {
     const res = await pool.query(sql, params);
     return { changes: res.rowCount, lastID: res.rows[0]?.id };
   } catch (err) {
-    console.error("Query error:", err);
+    console.error("[DB QUERY ERROR]", sql, err.message);
     throw err;
   }
 }
