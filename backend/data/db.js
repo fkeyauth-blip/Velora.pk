@@ -2,9 +2,14 @@
 const { Pool } = require("pg");
 
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL || "postgresql://postgres:password@localhost:5432/velora",
+  connectionString: process.env.DATABASE_URL,
   ssl: process.env.NODE_ENV === "production" ? { rejectUnauthorized: false } : false
 });
+
+if (!process.env.DATABASE_URL) {
+  console.error("ERROR: DATABASE_URL environment variable not set!");
+  process.exit(1);
+}
 
 pool.on("error", (err) => {
   console.error("Unexpected error on idle client", err);
