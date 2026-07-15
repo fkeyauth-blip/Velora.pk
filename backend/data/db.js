@@ -1,15 +1,16 @@
 // backend/data/db.js - PostgreSQL Database Module
 const { Pool } = require("pg");
 
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: process.env.NODE_ENV === "production" ? { rejectUnauthorized: false } : false
-});
-
+// MUST have DATABASE_URL in environment
 if (!process.env.DATABASE_URL) {
   console.error("ERROR: DATABASE_URL environment variable not set!");
   process.exit(1);
 }
+
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: process.env.NODE_ENV === "production" ? { rejectUnauthorized: false } : false
+});
 
 pool.on("error", (err) => {
   console.error("Unexpected error on idle client", err);
@@ -17,26 +18,26 @@ pool.on("error", (err) => {
 
 async function initDB() {
   try {
-    // Products table with NEW showSizeGuide column
+    // Products table with showSizeGuide column
     await pool.query(`
       CREATE TABLE IF NOT EXISTS products (
         id TEXT PRIMARY KEY,
         name TEXT NOT NULL,
         category TEXT NOT NULL,
         price DECIMAL NOT NULL,
-        salePrice DECIMAL,
+        saleprice DECIMAL,
         discount INTEGER,
         stock INTEGER DEFAULT 0,
-        minOrderQty INTEGER DEFAULT 1,
+        minorderqty INTEGER DEFAULT 1,
         sku TEXT,
         sizes TEXT,
         colors TEXT,
         description TEXT,
         images TEXT,
-        isNew BOOLEAN DEFAULT false,
+        isnew BOOLEAN DEFAULT false,
         featured BOOLEAN DEFAULT false,
-        showSizeGuide BOOLEAN DEFAULT true,
-        createdAt TIMESTAMP DEFAULT NOW()
+        showsizeguide BOOLEAN DEFAULT true,
+        createdat TIMESTAMP DEFAULT NOW()
       )
     `);
 
@@ -47,8 +48,8 @@ async function initDB() {
         name TEXT NOT NULL,
         phone TEXT UNIQUE NOT NULL,
         email TEXT UNIQUE,
-        passwordHash TEXT NOT NULL,
-        createdAt TIMESTAMP DEFAULT NOW()
+        passwordhash TEXT NOT NULL,
+        createdat TIMESTAMP DEFAULT NOW()
       )
     `);
 
@@ -56,8 +57,8 @@ async function initDB() {
     await pool.query(`
       CREATE TABLE IF NOT EXISTS orders (
         id TEXT PRIMARY KEY,
-        userId TEXT REFERENCES users(id),
-        customerName TEXT NOT NULL,
+        userid TEXT REFERENCES users(id),
+        customername TEXT NOT NULL,
         phone TEXT NOT NULL,
         email TEXT,
         address TEXT NOT NULL,
@@ -65,12 +66,12 @@ async function initDB() {
         items TEXT NOT NULL,
         subtotal DECIMAL,
         total DECIMAL,
-        paymentMethod TEXT,
-        paymentStatus TEXT DEFAULT 'Pending Verification',
-        senderNumber TEXT,
-        transactionId TEXT,
-        screenshotPath TEXT,
-        createdAt TIMESTAMP DEFAULT NOW()
+        paymentmethod TEXT,
+        paymentstatus TEXT DEFAULT 'Pending Verification',
+        sendernumber TEXT,
+        transactionid TEXT,
+        screenshotpath TEXT,
+        createdat TIMESTAMP DEFAULT NOW()
       )
     `);
 
@@ -79,7 +80,7 @@ async function initDB() {
       CREATE TABLE IF NOT EXISTS newsletter (
         id SERIAL PRIMARY KEY,
         email TEXT UNIQUE NOT NULL,
-        subscribedAt TIMESTAMP DEFAULT NOW()
+        subscribedat TIMESTAMP DEFAULT NOW()
       )
     `);
 
