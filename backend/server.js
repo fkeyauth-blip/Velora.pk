@@ -58,20 +58,21 @@ app.use((err, req, res, next) => {
 });
 
 // Initialize and start
-async function start() {
+sync function start() {
   try {
+    console.log("Initializing database...");
     await initDB();
+    
+    console.log("Seeding products...");
     await seedProducts();
     
     app.listen(PORT, () => {
-      console.log(`\n  ╔════════════════════════════════════╗`);
-      console.log(`  ║  VELORA.PK - PostgreSQL Ready     ║`);
-      console.log(`  ║  http://localhost:${PORT}             ║`);
-      console.log(`  ║  Admin: /admin (Key: maison-admin) ║`);
-      console.log(`  ╚════════════════════════════════════╝\n`);
+      console.log(`\n✅ VELORA API running on port ${PORT}`);
+      console.log(`📖 Database: PostgreSQL (${process.env.DATABASE_URL.split("@")[1]?.split("/")[0]})`);
+      console.log(`🌐 http://localhost:${PORT}\n`);
     });
   } catch (err) {
-    console.error("Startup error:", err);
+    console.error("❌ Startup error:", err.message);
     process.exit(1);
   }
 }
